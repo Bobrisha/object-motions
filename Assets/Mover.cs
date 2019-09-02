@@ -27,9 +27,22 @@ public class Mover : MonoBehaviour
 
     Coroutine MoveCoroutine;
 
+    // x = p cos (f);
+    // y = p sin (f);
+
+    // p = a * f / 2pi 
+    // f = (0, 2pi)
+    // a = spiral steps
+
+    float f = 0;
+    float a = 0.1f;
 
     void Update()
     {
+        float p = a * f / 2 / Mathf.PI;
+        objectToMove.position = new Vector2(p * Mathf.Cos(f), p * Mathf.Sin(f));
+        f+= 0.1f;
+
         if (Input.GetMouseButtonDown(0))
         {
             clickPosition = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
