@@ -300,8 +300,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56f60e9a67ed6274e9bed561824e96ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  trajectory: 2
   objectToMove: {fileID: 1210071127}
-  time: 1
+  time: 5
+  spikesCount: 0
+  spikesHeight: 0
+  spralTurns: 5
 --- !u!4 &1805850739
 Transform:
   m_ObjectHideFlags: 0
