@@ -24,6 +24,8 @@ public class Mover : MonoBehaviour
     [SerializeField] int spralTurns = 5;
 
 
+    [SerializeField] LineRenderer renderer = default;
+
     Coroutine MoveCoroutine;
 
     Vector2 clickPosition;
@@ -52,11 +54,14 @@ public class Mover : MonoBehaviour
                     MoveCoroutine = StartCoroutine(Move());
                     break;
 
+                case Trajectories.Spikes:
+                    MoveCoroutine = StartCoroutine(SpikesMove());
+                    break;
+
                 case Trajectories.Spiral:
                     MoveCoroutine = StartCoroutine(SpiralMove());
                     break;
             }
-
         }
     }
 
@@ -65,28 +70,73 @@ public class Mover : MonoBehaviour
     {
         float startTime = Time.time;
 
-        while (clickPosition != (Vector2)objectToMove.transform.position)
+        while ((Vector2)objectToMove.transform.position != clickPosition)
         {
             yield return null;
 
-            float fractionDitance = (Time.time - startTime) / time;
-            objectToMove.position = Vector3.Lerp(startPosition, clickPosition, fractionDitance);
+            float fractionDistance = (Time.time - startTime) / time;
+            objectToMove.position = Vector2.Lerp(startPosition, clickPosition, fractionDistance);
+        }
+    }
+
+
+    IEnumerator SpikesMove()
+    {
+        Vector2 direction = (clickPosition - startPosition);
+        direction.Normalize();
+
+        Vector2 spikePosition  = new Vector2(-direction.y, direction.x) * spikesHeight;
+
+        int transitPointsCount = spikesCount * 2 + 1;
+        Vector2[] transitPoints = new Vector2[transitPointsCount];
+
+
+        transitPoints[0] = startPosition;
+
+        for (int i = 1; i < transitPointsCount - 1; i++)
+        {
+            float x = distance / 2 / spikesCount;
+
+            if (i % 2 > 0)
+            {
+                transitPoints[i] = i * x * direction + spikePosition + startPosition;
+            }
+            else
+            {
+                transitPoints[i] = i * x * direction + startPosition;
+            }
+        }
+
+        transitPoints[transitPointsCount - 1] = clickPosition;
+        
+
+        for (int i = 1; i < transitPointsCount; i++)
+        {
+            float startTime = Time.time;
+
+            while ((Vector2)objectToMove.position != transitPoints[i])
+            {
+                yield return null;
+
+                float fractionDistance = (Time.time - startTime) /  time * (spikesCount * 2);
+                objectToMove.position = Vector2.Lerp(transitPoints[i - 1], transitPoints[i], fractionDistance); 
+            }
         }
     }
     
 
     IEnumerator SpiralMove()
     {
-        // p = a * f / 2pi  - Archimedean spiral (Polar coordinates)
-        // f = turn angle
-        // a - spiral step
+         //p = a * f / 2pi  - Archimedean spiral (Polar coordinates)
+         //f = turn angle
+         //a - spiral step
 
-        // x = p cos (f);
-        // y = p sin (f);
+         //x = p cos (f);
+         //y = p sin (f);
 
-        // distance(radius) / (n + 0.5) = a 
-        // n - spiral turns
-
+         //distance(radius) / (n + 0.5) = a 
+         //n - spiral turns
+        
         Vector2 spiralCenterOffset = startPosition - clickPosition;
         float startDirectionAngle = Mathf.Atan2(spiralCenterOffset.y , spiralCenterOffset.x);
         
