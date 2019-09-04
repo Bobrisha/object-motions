@@ -32,6 +32,7 @@ public class Ui : MonoBehaviour
         trajectoriesDropdown.ClearOptions();
         trajectoriesDropdown.AddOptions(Enum.GetNames(typeof(Trajectories)).ToList());
         trajectoriesDropdown.onValueChanged.AddListener(OnTrajectorySet);
+        trajectoriesDropdown.value = (int)defaulConfig.Trajectory;
 
         timeInput.text = defaulConfig.Time.ToString();
         timeInput.onValueChanged.AddListener(OnTimeSet);
@@ -52,7 +53,31 @@ public class Ui : MonoBehaviour
 
     #region Events handlers
 
-    void OnTrajectorySet(int selectedTrajectory) => OnTrajectoryChange?.Invoke(selectedTrajectory);
+    void OnTrajectorySet(int selectedTrajectory)
+    {
+        switch ((Trajectories)selectedTrajectory)
+        {
+            case Trajectories.Linear:
+                spikesCountInput.gameObject.SetActive(false);
+                spikesHeightInput.gameObject.SetActive(false);
+                spralTurnsInput.gameObject.SetActive(false);
+                break;
+
+            case Trajectories.Spikes:
+                spikesCountInput.gameObject.SetActive(true);
+                spikesHeightInput.gameObject.SetActive(true);
+                spralTurnsInput.gameObject.SetActive(false);
+                break;
+
+            case Trajectories.Spiral:
+                spikesCountInput.gameObject.SetActive(false);
+                spikesHeightInput.gameObject.SetActive(false);
+                spralTurnsInput.gameObject.SetActive(true);
+                break;
+        }
+
+        OnTrajectoryChange?.Invoke(selectedTrajectory);
+    }
 
 
     void OnTimeSet(string timeString)

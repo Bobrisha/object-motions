@@ -8,6 +8,7 @@ public class Mover : MonoBehaviour
     #region Fields
 
     Transform objectToMove;
+    Transform targetPointer;
 
     Coroutine MoveCoroutine;
     Config config;
@@ -29,7 +30,9 @@ public class Mover : MonoBehaviour
         {
             startPosition = objectToMove.transform.position;
             clickPosition = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
-            
+
+            targetPointer.position = clickPosition;
+
             distance = Vector2.Distance(startPosition, clickPosition);
 
             if (MoveCoroutine != null)
@@ -60,10 +63,11 @@ public class Mover : MonoBehaviour
 
     #region Publick methods
 
-    public void Init(Config config, Transform objectToMove)
+    public void Init(Config config, Transform objectToMove, Transform targetPointer)
     {
         this.config = config;
         this.objectToMove = objectToMove;
+        this.targetPointer = targetPointer;
     }
 
     #endregion
