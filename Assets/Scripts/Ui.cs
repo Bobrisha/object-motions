@@ -43,7 +43,7 @@ public class Ui : MonoBehaviour
         spikesHeightInput.text = defaulConfig.SpikesHeight.ToString();
         spikesHeightInput.onValueChanged.AddListener(OnSpikesHeightSet);
 
-        spralTurnsInput.text = defaulConfig.SpralTurns.ToString();
+        spralTurnsInput.text = defaulConfig.SpiralTurns.ToString();
         spralTurnsInput.onValueChanged.AddListener(OnSpralTurnsSet);
     }
 

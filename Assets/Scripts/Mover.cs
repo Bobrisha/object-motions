@@ -10,10 +10,9 @@ public class Mover : MonoBehaviour
     Transform objectToMove;
     Transform targetPointer;
 
-    Coroutine MoveCoroutine;
+    Coroutine moveCoroutine;
     Config config;
-
-    Vector2 clickPosition;
+   
     Vector2 startPosition;
 
     float distance;
@@ -29,29 +28,28 @@ public class Mover : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             startPosition = objectToMove.transform.position;
-            clickPosition = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
-
-            targetPointer.position = clickPosition;
-
+            Vector2 clickPosition = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
             distance = Vector2.Distance(startPosition, clickPosition);
 
-            if (MoveCoroutine != null)
+            targetPointer.position = clickPosition;
+            
+            if (moveCoroutine != null)
             {
-                StopCoroutine(MoveCoroutine);
+                StopCoroutine(moveCoroutine);
             }
 
             switch (config.Trajectory)
             {
                 case Trajectories.Linear:
-                    MoveCoroutine = StartCoroutine(Move());
+                    moveCoroutine = StartCoroutine(LinearMove(clickPosition, config.Time));
                     break;
 
                 case Trajectories.Spikes:
-                    MoveCoroutine = StartCoroutine(SpikesMove());
+                    moveCoroutine = StartCoroutine(SpikesMove(clickPosition, config.Time, config.SpikesCount, config.SpikesHeight));
                     break;
 
                 case Trajectories.Spiral:
-                    MoveCoroutine = StartCoroutine(SpiralMove());
+                    moveCoroutine = StartCoroutine(SpiralMove(clickPosition, config.Time, config.SpiralTurns));
                     break;
             }
         }
@@ -76,36 +74,35 @@ public class Mover : MonoBehaviour
 
     #region Private methods
 
-    IEnumerator Move()
+    IEnumerator LinearMove(Vector2 finishPosition, float time)
     {
         float startTime = Time.time;
 
-        while ((Vector2)objectToMove.transform.position != clickPosition)
+        while ((Vector2)objectToMove.transform.position != finishPosition)
         {
             yield return null;
 
-            float fractionDistance = (Time.time - startTime) / config.Time;
-            objectToMove.position = Vector2.Lerp(startPosition, clickPosition, fractionDistance);
+            float fractionDistance = (Time.time - startTime) / time;
+            objectToMove.position = Vector2.Lerp(startPosition, finishPosition, fractionDistance);
         }
     }
 
 
-    IEnumerator SpikesMove()
+    IEnumerator SpikesMove(Vector2 finishPosition, float time, int spikesCount, float spikesHeight)
     {
-        Vector2 direction = (clickPosition - startPosition);
+        Vector2 direction = (finishPosition - startPosition);
         direction.Normalize();
 
-        Vector2 spikePosition  = new Vector2(-direction.y, direction.x) * config.SpikesHeight;
+        Vector2 spikePosition  = new Vector2(-direction.y, direction.x) * spikesHeight;
 
-        int transitPointsCount = config.SpikesCount * 2 + 1;
+        int transitPointsCount = spikesCount * 2 + 1;
         Vector2[] transitPoints = new Vector2[transitPointsCount];
-
 
         transitPoints[0] = startPosition;
 
         for (int i = 1; i < transitPointsCount - 1; i++)
         {
-            float x = distance / 2 / config.SpikesCount;
+            float x = distance / 2 / spikesCount;
 
             if (i % 2 > 0)
             {
@@ -117,9 +114,8 @@ public class Mover : MonoBehaviour
             }
         }
 
-        transitPoints[transitPointsCount - 1] = clickPosition;
+        transitPoints[transitPointsCount - 1] = finishPosition;
         
-
         for (int i = 1; i < transitPointsCount; i++)
         {
             float startTime = Time.time;
@@ -128,14 +124,14 @@ public class Mover : MonoBehaviour
             {
                 yield return null;
 
-                float fractionDistance = (Time.time - startTime) /  config.Time * (config.SpikesCount * 2);
+                float fractionDistance = (Time.time - startTime) /  time * (spikesCount * 2);
                 objectToMove.position = Vector2.Lerp(transitPoints[i - 1], transitPoints[i], fractionDistance); 
             }
         }
     }
     
 
-    IEnumerator SpiralMove()
+    IEnumerator SpiralMove(Vector2 finishPosition, float time, int spralTurns)
     {
         /*
         p = a * f / 2pi  - Archimedean spiral (Polar coordinates)
@@ -149,13 +145,13 @@ public class Mover : MonoBehaviour
         n - spiral turns
         */       
 
-        Vector2 spiralCenterOffset = startPosition - clickPosition;
+        Vector2 spiralCenterOffset = startPosition - finishPosition;
         float startDirectionAngle = Mathf.Atan2(spiralCenterOffset.y , spiralCenterOffset.x);
 
         startDirectionAngle += (startDirectionAngle < 0f) ?  2 * Mathf.PI : 0;
 
 
-        float currentAngle = startDirectionAngle + config.SpralTurns * 2 * Mathf.PI;
+        float currentAngle = startDirectionAngle + spralTurns * 2 * Mathf.PI;
         float fullStartAngle = currentAngle;
 
         float angleStep;
@@ -164,12 +160,12 @@ public class Mover : MonoBehaviour
         {
             yield return null;
 
-            angleStep = Time.deltaTime * fullStartAngle / config.Time;
+            angleStep = Time.deltaTime * fullStartAngle / time;
             currentAngle -= angleStep;
 
-            float spiralStep = distance / (config.SpralTurns + 0.5f);
+            float spiralStep = distance / (spralTurns + 0.5f);
             float spiralPolarCoordinates = spiralStep * currentAngle / 2.0f / Mathf.PI;
-            objectToMove.position = new Vector2(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle)) * spiralPolarCoordinates + clickPosition;
+            objectToMove.position = new Vector2(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle)) * spiralPolarCoordinates + finishPosition;
         }
     }
 

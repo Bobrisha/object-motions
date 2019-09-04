@@ -13,14 +13,14 @@ public class Config : ScriptableObject
     [SerializeField] float spikesHeight = default;
 
     [Header("Spiral")]
-    [SerializeField] int spralTurns = default;
+    [SerializeField] int spiralTurns = default;
 
 
     public Trajectories Trajectory => trajectory;
     public float Time => time;
     public int SpikesCount => spikesCount;
     public float SpikesHeight => spikesHeight;
-    public int SpralTurns => spralTurns;
+    public int SpiralTurns => spiralTurns;
 
 
     private void OnEnable()
