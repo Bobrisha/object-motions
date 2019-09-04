@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5da95bc9a78554ad7a77694949ce9a44, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: 
-  trajectory: 0
+  trajectory: 2
   time: 3
-  spikesCount: 3
+  spikesCount: 2
   spikesHeight: 2
-  spralTurns: 5
+  spiralTurns: 5

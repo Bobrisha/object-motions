@@ -45,7 +45,7 @@ public class Config : ScriptableObject
 
     void Ui_OnTrajectoryChange(int newTrajectory) => trajectory = (Trajectories)newTrajectory;
     void Ui_OnTimeChanged(float newTime) => time = newTime;
-    void Ui_OnSpralTurnsChanged(int newTurnsCount) => spikesCount = newTurnsCount;
+    void Ui_OnSpralTurnsChanged(int newTurnsCount) => spiralTurns = newTurnsCount;
     void Ui_OnSpikesCountChanged(int newSpikesCount) => spikesCount = newSpikesCount;
     void Ui_OnSpikesHeightChanged(float newSpikesHeight) => spikesHeight = newSpikesHeight;
 }
